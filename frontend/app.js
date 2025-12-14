@@ -128,3 +128,38 @@ surveyForm.addEventListener("submit", async (e) => {
     surveyMsg.textContent = "❌ Erreur réseau. Vérifie que le backend tourne sur localhost:4000.";
   }
 });
+
+/* ===== Tilt effect for visuals (hover + touch) ===== */
+function setupTilt(el){
+  const strength = Number(el.dataset.strength || 10);
+
+  const reset = () => {
+    el.style.transform = "";
+  };
+
+  const move = (clientX, clientY) => {
+    const r = el.getBoundingClientRect();
+    const x = (clientX - r.left) / r.width;   // 0..1
+    const y = (clientY - r.top) / r.height;   // 0..1
+
+    const rx = (y - 0.5) * -strength; // rotateX
+    const ry = (x - 0.5) * strength;  // rotateY
+
+    el.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+  };
+
+  // mouse
+  el.addEventListener("mousemove", (e) => move(e.clientX, e.clientY));
+  el.addEventListener("mouseleave", reset);
+
+  // touch
+  el.addEventListener("touchmove", (e) => {
+    if(!e.touches?.length) return;
+    const t = e.touches[0];
+    move(t.clientX, t.clientY);
+  }, { passive: true });
+
+  el.addEventListener("touchend", reset);
+}
+
+document.querySelectorAll(".tilt").forEach(setupTilt);
