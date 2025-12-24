@@ -11,9 +11,12 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+/*
 
+ci dessous permet de modifier le code admin
+*/
 const PORT = process.env.PORT || 4000;
-const ADMIN_KEY = process.env.ADMIN_KEY || "admin";
+const ADMIN_KEY = process.env.ADMIN_KEY || "andylix123";
 
 // Paths
 const __filename = fileURLToPath(import.meta.url);
