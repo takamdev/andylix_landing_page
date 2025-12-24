@@ -1,4 +1,4 @@
-const API_BASE = "https://andylix-landing-page.vercel.app";
+const API_BASE = "http://localhost:4000";
 
 document.getElementById("year").textContent = new Date().getFullYear();
 

@@ -7,10 +7,16 @@ import { fileURLToPath } from "url";
 import crypto from "crypto";
 
 dotenv.config();
-
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// url de la BD
+const url = "https://rgwltzqanvsmgj3h.public.blob.vercel-storage.com/db.json";
+const token="vercel_blob_rw_rGWLTZQANVsmgj3H_SJAVYkepBsrfVB5sc7zgqYig6wpzl1"
+
+import { put } from "@vercel/blob";
+
 /*
 
 ci dessous permet de modifier le code admin
@@ -24,20 +30,28 @@ const __dirname = path.dirname(__filename);
 const DB_PATH = path.join(__dirname, "db.json");
 
 // Helpers
-function readDB() {
-  if (!fs.existsSync(DB_PATH)) {
-    return { waitlist: [], surveys: [] };
-  }
-  try {
-    return JSON.parse(fs.readFileSync(DB_PATH, "utf-8"));
-  } catch {
-    return { waitlist: [], surveys: [] };
-  }
+async function  readDB() {
+  const reponse = await fetch(url);
+  const data = await reponse.json();
+  
+  return data;
 }
 
-function writeDB(data) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf-8");
+const staticDb = JSON.parse(fs.readFileSync(DB_PATH, "utf-8"));
+
+async function writeDB(data) {
+  
+  const jsonString = JSON.stringify(data||staticDb);
+  const blob = await put('db.json', jsonString, {
+    access: 'public',
+    addRandomSuffix: false, // Important pour garder le même nom de fichier
+    allowOverwrite: true, // <--- AJOUTE CETTE LIGNE
+    token:token
+  });
+
+  return blob.url;
 }
+
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -52,14 +66,14 @@ app.get("/api/health", (req, res) => {
  * WAITLIST
  * body: { name?:string, email:string, role?: 'client'|'artisan'|'pme' }
  */
-app.post("/api/waitlist", (req, res) => {
+app.post("/api/waitlist", async (req, res) => {
   const { name = "", email = "", role = "client" } = req.body;
 
   if (!email || !isValidEmail(email)) {
     return res.status(400).json({ ok: false, error: "Email invalide." });
   }
 
-  const db = readDB();
+  const db = await readDB();
   const exists = db.waitlist.some(
     (x) => x.email.toLowerCase() === email.trim().toLowerCase()
   );
@@ -76,8 +90,9 @@ app.post("/api/waitlist", (req, res) => {
     createdAt: new Date().toISOString(),
   };
 
+// poiint essentiel
   db.waitlist.push(entry);
-  writeDB(db);
+  await writeDB(db);
 
   return res.status(201).json({ ok: true, entry });
 });
@@ -86,7 +101,7 @@ app.post("/api/waitlist", (req, res) => {
  * SURVEY
  * body: { persona, frequency, pain, intent, service, comment? }
  */
-app.post("/api/survey", (req, res) => {
+app.post("/api/survey", async (req, res) => {
   const {
     persona,
     frequency,
@@ -97,9 +112,9 @@ app.post("/api/survey", (req, res) => {
   } = req.body;
 
   const validPersona = ["client", "pme", "artisan"];
-  const validFrequency = ["rare", "sometimes", "often"];
-  const validPain = ["trust", "time", "price", "availability"];
-  const validIntent = ["yes", "maybe", "no"];
+  const validFrequency = ["rare", "parfois", "souvent"];
+  const validPain = ["confiance", "temps", "prix", "délais"];
+  const validIntent = ["oui", "peut-être", "non"];
 
   if (!validPersona.includes(persona)) {
     return res.status(400).json({ ok: false, error: "persona invalide." });
@@ -117,8 +132,7 @@ app.post("/api/survey", (req, res) => {
     return res.status(400).json({ ok: false, error: "service invalide." });
   }
 
-  const db = readDB();
-
+  const db =  await readDB()
   const entry = {
     id: crypto.randomUUID(),
     persona,
@@ -130,8 +144,9 @@ app.post("/api/survey", (req, res) => {
     createdAt: new Date().toISOString(),
   };
 
+  // point essentiel
   db.surveys.push(entry);
-  writeDB(db);
+  await writeDB(db);
 
   return res.status(201).json({ ok: true, entry });
 });
@@ -141,13 +156,13 @@ app.post("/api/survey", (req, res) => {
  * GET /api/admin?key=...
  */
 // ADMIN VIEW (simple) - key in header: x-admin-key
-app.get("/api/admin", (req, res) => {
+app.get("/api/admin", async (req, res) => {
   const key = String(req.headers["x-admin-key"] || "");
   if (key !== ADMIN_KEY) {
     return res.status(401).json({ ok: false, error: "Unauthorized" });
   }
-
-  const db = readDB();
+// point essensiel
+  const db = await readDB();
   return res.json({
     ok: true,
     totalWaitlist: db.waitlist.length,
@@ -158,8 +173,10 @@ app.get("/api/admin", (req, res) => {
 });
 
 // Optional: stats only (lighter)
-app.get("/api/stats", (req, res) => {
-  const db = readDB();
+app.get("/api/stats", async (req, res) => {
+  // point essensiel
+
+  const db =  await readDB();
 
   // petit résumé utile
   const byPersona = db.surveys.reduce((acc, s) => {
