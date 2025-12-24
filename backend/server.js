@@ -168,7 +168,7 @@ app.get("/api/stats", (req, res) => {
     acc[s.service] = (acc[s.service] || 0) + 1;
     return acc;
   }, {});
-
+ console.log(byPersona,byService)
   res.json({
     ok: true,
     totalWaitlist: db.waitlist.length,

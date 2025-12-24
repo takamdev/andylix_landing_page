@@ -14,7 +14,7 @@
         <span>Andylix — Admin</span>
       </div>
       <nav class="links">
-        <a href="./index.html">Retour site</a>
+        <a href="./index.html">Retour site</a> 
       </nav>
     </div>
   </header>
@@ -29,25 +29,29 @@
         <input name="key" type="password" placeholder="ADMIN_KEY" required />
       </div>
       <button class="btn primary" type="submit">Charger</button>
+      <p id="decharge" style="position: relative; width: 100%;"><button class="btn primary " style="width: 100px; position: absolute; right: 0;" type="button">Décharger</button></p>
       <p id="adminMsg" class="muted" style="margin:6px 0 0;"></p>
     </form>
 
-    <div id="stats" class="grid3" style="margin-top:14px;"></div>
+    <div id="listage" class="hidden">
+      <div id="stats" class="grid3" style="margin-top:14px;"></div>
 
-    <div class="grid3" style="margin-top:14px;">
+    <div class="grid3 "  style="margin-top:14px;">
       <div class="card">
         <h3>Waitlist</h3>
-        <pre id="waitlistBox" class="muted" style="white-space:pre-wrap;margin:0;"></pre>
+        <div id="waitlistBox"  class="scrolll"  ></div>
       </div>
-      <div class="card">
+      <div class="card" >
         <h3>Surveys</h3>
-        <pre id="surveysBox" class="muted" style="white-space:pre-wrap;margin:0;"></pre>
+        <div id="surveysBox" class="scrolll"></div>
       </div>
       <div class="card">
         <h3>Stats</h3>
-        <pre id="statsBox" class="muted" style="white-space:pre-wrap;margin:0;"></pre>
+        <div id="statsBox"   ></div>
       </div>
     </div>
+    </div>
+    
   </main>
 
   <script src="./admin.js"></script>
