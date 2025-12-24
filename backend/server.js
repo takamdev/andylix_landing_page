@@ -140,7 +140,7 @@ app.post("/api/survey", (req, res) => {
 // ADMIN VIEW (simple) - key in header: x-admin-key
 app.get("/api/admin", (req, res) => {
   const key = String(req.headers["x-admin-key"] || "");
-  if (key !== "12345") {
+  if (key !== ADMIN_KEY) {
     return res.status(401).json({ ok: false, error: "Unauthorized" });
   }
 
