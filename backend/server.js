@@ -10,6 +10,9 @@ import { put } from "@vercel/blob";
 dotenv.config();
 const app = express();
 app.use(cors());
+app.use(cors({
+  origin: "https://andylix-landing-page-edud.vercel.app" // Remplace par l'URL de ton site HTML
+}));
 app.use(express.json());
 
 // url de la BD
