@@ -5,6 +5,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import crypto from "crypto";
+import { put } from "@vercel/blob";
 
 dotenv.config();
 const app = express();
@@ -15,7 +16,6 @@ app.use(express.json());
 const url = "https://rgwltzqanvsmgj3h.public.blob.vercel-storage.com/db.json";
 const token="vercel_blob_rw_rGWLTZQANVsmgj3H_SJAVYkepBsrfVB5sc7zgqYig6wpzl1"
 
-import { put } from "@vercel/blob";
 
 /*
 
